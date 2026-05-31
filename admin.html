@@ -387,6 +387,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        window.db = db;
+        window.getDocs = getDocs;
+        window.collection = collection;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+
         window.saveToDatabase = async (data) => {
             await addDoc(collection(db, "products"), {
                 ...data,
@@ -400,7 +407,7 @@
                 const snap = await getDocs(collection(db, "products"));
                 document.getElementById('productCount').textContent = snap.size;
             } catch(e) {}
-            loadProducts();
+            await loadProducts();
         });
     </script>
 </head>
@@ -662,8 +669,7 @@
                 };
 
                 await window.saveToDatabase(productData);
-
-                loadProducts();
+                await loadProducts();
 
                 // تحديث العداد
                 const countEl = document.getElementById('productCount');
@@ -706,10 +712,10 @@
 </script>
 
 <div class="form-card" style="margin:30px;">
-    <div class="form-section">
-        <div class="section-label">إدارة المنتجات</div>
-        <div id="productsList"></div>
-    </div>
+<div class="form-section">
+<div class="section-label">إدارة المنتجات</div>
+<div id="productsList"></div>
+</div>
 </div>
 
 </body>
