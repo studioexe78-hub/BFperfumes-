@@ -364,7 +364,15 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            doc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAACMgwULMURQbbKmXkM7Nh1ZvkUQ4MR30",
@@ -392,6 +400,7 @@
                 const snap = await getDocs(collection(db, "products"));
                 document.getElementById('productCount').textContent = snap.size;
             } catch(e) {}
+            loadProducts();
         });
     </script>
 </head>
@@ -437,6 +446,11 @@
                             <option value="$">$</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>الكمية المتوفرة (المخزون)</label>
+                    <input type="number" id="stock" min="0" value="1">
                 </div>
 
                 <div class="form-group">
@@ -643,10 +657,13 @@
                     currency:    document.getElementById("currency").value,
                     category:    document.getElementById("category").value,
                     description: document.getElementById("description").value,
+                    stock: document.getElementById("stock").value,
                     imageUrl:    result.data.url
                 };
 
                 await window.saveToDatabase(productData);
+
+                loadProducts();
 
                 // تحديث العداد
                 const countEl = document.getElementById('productCount');
@@ -687,5 +704,13 @@
         document.getElementById('successOverlay').classList.remove('show');
     }
 </script>
+
+<div class="form-card" style="margin:30px;">
+    <div class="form-section">
+        <div class="section-label">إدارة المنتجات</div>
+        <div id="productsList"></div>
+    </div>
+</div>
+
 </body>
 </html>
