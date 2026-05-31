@@ -2,22 +2,369 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم - إضافة منتج | BF PERFUMES</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | BF PERFUMES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0b0b0b; color: #fff; padding: 20px; }
-        .admin-container { max-width: 600px; margin: auto; background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; }
-        h2 { color: #c5a059; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #aaa; }
-        input, select, textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
-        .price-group { display: flex; gap: 10px; }
-        button { width: 100%; padding: 15px; background: #c5a059; border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 20px; }
-        button:disabled { background: #555; cursor: not-allowed; }
+        :root {
+            --gold: #c5a059;
+            --gold-dim: rgba(197,160,89,0.12);
+            --dark: #0b0b0b;
+            --card: #131313;
+            --card2: #1a1a1a;
+            --border: #222;
+            --muted: #666;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* خلفية */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 50% 60% at 100% 0%, rgba(197,160,89,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 0% 100%, rgba(197,160,89,0.04) 0%, transparent 60%);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky; top: 0; z-index: 100;
+            height: 68px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(11,11,11,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-logo img { height: 40px; }
+        .header-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(197,160,89,0.25);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 12px; font-weight: 700; color: var(--gold);
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        .header-badge::before {
+            content: ''; width: 7px; height: 7px;
+            border-radius: 50%; background: var(--gold);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .header-link {
+            color: var(--muted); font-size: 13px; text-decoration: none;
+            display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+        }
+        .header-link:hover { color: var(--gold); }
+        .header-link svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+        /* ===== LAYOUT ===== */
+        .page {
+            max-width: 1100px; margin: 0 auto;
+            padding: 50px 40px 80px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            align-items: start;
+            position: relative; z-index: 1;
+        }
+
+        /* ===== FORM SIDE ===== */
+        .form-wrap {}
+
+        .page-title {
+            margin-bottom: 32px;
+        }
+        .page-title .eyebrow {
+            font-size: 11px; letter-spacing: 4px; color: var(--gold);
+            text-transform: uppercase; font-weight: 600; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .page-title .eyebrow::before {
+            content: ''; width: 30px; height: 1px; background: var(--gold); opacity: 0.6;
+        }
+        .page-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px; font-weight: 300; line-height: 1.1;
+            color: #fff;
+        }
+        .page-title h1 em { color: var(--gold); font-style: italic; }
+
+        /* ===== CARD FORM ===== */
+        .form-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .form-section {
+            padding: 28px 28px 0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 28px;
+        }
+        .form-section:last-of-type { border-bottom: none; }
+
+        .section-label {
+            font-size: 10px; letter-spacing: 3px; color: var(--muted);
+            text-transform: uppercase; font-weight: 700;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group:last-child { margin-bottom: 0; }
+
+        label {
+            display: block; margin-bottom: 8px;
+            font-size: 13px; font-weight: 600; color: #aaa;
+            letter-spacing: 0.3px;
+        }
+        label .req { color: var(--gold); margin-right: 3px; }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: 'Tajawal', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(197,160,89,0.08);
+        }
+        input::placeholder { color: #333; }
+        select option { background: #1a1a1a; }
+        textarea { resize: vertical; min-height: 90px; }
+
+        .price-row {
+            display: grid; grid-template-columns: 1fr 130px; gap: 12px;
+        }
+
+        /* ===== IMAGE UPLOAD ===== */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            position: relative; overflow: hidden;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+        }
+        .upload-area input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer;
+            width: 100%; height: 100%; padding: 0; border: none;
+        }
+        .upload-icon {
+            width: 44px; height: 44px; margin: 0 auto 12px;
+            background: var(--gold-dim); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .upload-icon svg { width: 22px; height: 22px; fill: none; stroke: var(--gold); stroke-width: 1.5; }
+        .upload-text { font-size: 14px; color: #aaa; }
+        .upload-text strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 15px; }
+        .upload-hint { font-size: 12px; color: #444; margin-top: 6px; }
+
+        /* preview الصورة */
+        .img-preview-wrap {
+            display: none; position: relative;
+        }
+        .img-preview-wrap img {
+            width: 100%; height: 200px; object-fit: contain;
+            border-radius: 10px; background: #0d0d0d;
+        }
+        .img-preview-wrap .remove-img {
+            position: absolute; top: 8px; left: 8px;
+            background: rgba(0,0,0,0.7); border: 1px solid #444;
+            border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #aaa; font-size: 14px;
+            transition: color 0.2s;
+        }
+        .img-preview-wrap .remove-img:hover { color: #e05555; }
+
+        /* ===== SUBMIT BUTTON ===== */
+        .form-footer {
+            padding: 24px 28px;
+            background: var(--card2);
+            border-top: 1px solid var(--border);
+        }
+        #submitBtn {
+            width: 100%; padding: 16px;
+            background: var(--gold);
+            border: none; border-radius: 12px;
+            color: #000; font-size: 16px; font-weight: 800;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer; letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        #submitBtn:hover:not(:disabled) {
+            background: #d4b472;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(197,160,89,0.25);
+        }
+        #submitBtn:active:not(:disabled) { transform: scale(0.98); }
+        #submitBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        #submitBtn svg { width: 18px; height: 18px; fill: none; stroke: #000; stroke-width: 2.5; }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 3px; background: var(--border);
+            border-radius: 3px; margin-top: 14px;
+            overflow: hidden; display: none;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--gold), #d4b472);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        /* ===== PREVIEW CARD (Right Side) ===== */
+        .preview-side { position: sticky; top: 90px; }
+
+        .preview-title {
+            font-size: 11px; letter-spacing: 3px; color: var(--muted);
+            text-transform: uppercase; font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .product-preview {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .preview-img-wrap {
+            height: 220px; background: #0d0d0d;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .preview-img-wrap img {
+            max-width: 80%; max-height: 80%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+        }
+        .preview-placeholder {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            color: #333;
+        }
+        .preview-placeholder svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1; }
+        .preview-placeholder span { font-size: 13px; }
+        .preview-badge {
+            position: absolute; top: 14px; right: 14px;
+            background: rgba(197,160,89,0.15);
+            border: 1px solid rgba(197,160,89,0.3);
+            color: var(--gold); padding: 4px 12px;
+            border-radius: 50px; font-size: 11px; font-weight: 700;
+        }
+        .preview-body { padding: 20px; }
+        .preview-name {
+            font-size: 18px; font-weight: 700; color: #fff;
+            margin-bottom: 6px; min-height: 26px;
+        }
+        .preview-name.placeholder { color: #333; font-weight: 400; font-size: 14px; }
+        .preview-price {
+            font-size: 15px; color: var(--gold); font-weight: 600;
+            margin-bottom: 16px; min-height: 22px;
+        }
+        .preview-desc {
+            font-size: 13px; color: #555; line-height: 1.7;
+            min-height: 20px;
+        }
+        .preview-btn {
+            margin-top: 16px; width: 100%; padding: 11px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(197,160,89,0.3);
+            border-radius: 10px; color: var(--gold);
+            font-size: 14px; font-weight: 700; font-family: 'Tajawal', sans-serif;
+            cursor: default; pointer-events: none;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-top: 16px;
+        }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-num { font-size: 28px; font-weight: 800; color: var(--gold); }
+        .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+        /* ===== SUCCESS OVERLAY ===== */
+        .success-overlay {
+            display: none; position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            align-items: center; justify-content: center;
+        }
+        .success-overlay.show { display: flex; }
+        .success-box {
+            background: var(--card);
+            border: 1px solid rgba(197,160,89,0.3);
+            border-radius: 24px; padding: 50px 40px;
+            text-align: center; max-width: 380px;
+            animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+        .success-icon {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: rgba(76,175,80,0.15);
+            border: 2px solid rgba(76,175,80,0.4);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 32px;
+        }
+        .success-box h3 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .success-box p { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 28px; }
+        .success-actions { display: flex; gap: 10px; }
+        .success-actions button {
+            flex: 1; padding: 12px; border-radius: 10px;
+            font-size: 14px; font-weight: 700; font-family: 'Tajawal', sans-serif;
+            cursor: pointer; transition: 0.2s; border: none;
+        }
+        .btn-add-more { background: var(--gold); color: #000; }
+        .btn-add-more:hover { background: #d4b472; }
+        .btn-view { background: var(--card2); color: #fff; border: 1px solid var(--border) !important; }
+        .btn-view:hover { border-color: var(--gold) !important; color: var(--gold); }
+
+        @media (max-width: 900px) {
+            .page { grid-template-columns: 1fr; padding: 30px 20px 60px; }
+            .preview-side { position: static; }
+            .header { padding: 0 20px; }
+        }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAACMgwULMURQbbKmXkM7Nh1ZvkUQ4MR30",
@@ -32,95 +379,312 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // الدالة العامة لحفظ البيانات
         window.saveToDatabase = async (data) => {
             await addDoc(collection(db, "products"), {
                 ...data,
                 createdAt: new Date().toISOString()
             });
         };
+
+        // عدد المنتجات
+        window.addEventListener('load', async () => {
+            try {
+                const snap = await getDocs(collection(db, "products"));
+                document.getElementById('productCount').textContent = snap.size;
+            } catch(e) {}
+        });
     </script>
 </head>
 <body>
 
-<div class="admin-container">
-    <h2>إضافة عطر جديد</h2>
-    <form id="productForm">
-        <div class="form-group">
-            <label>اسم العطر</label>
-            <input type="text" id="name" required>
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <img src="https://i.ibb.co/j91zgNRK/IMG-183.png" alt="BF PERFUMES" style="height:40px">
+    <div class="header-badge">لوحة التحكم</div>
+    <a href="index.html" class="header-link">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        المتجر
+    </a>
+</header>
+
+<!-- ===== PAGE ===== -->
+<div class="page">
+
+    <!-- FORM SIDE -->
+    <div class="form-wrap">
+        <div class="page-title">
+            <div class="eyebrow">إدارة المنتجات</div>
+            <h1>إضافة عطر <em>جديد</em></h1>
         </div>
-        <div class="form-group">
-            <label>السعر والعملة</label>
-            <div class="price-group">
-                <input type="number" id="price" placeholder="السعر" required>
-                <select id="currency" style="width: 120px;">
-                    <option value="SYP">ل.س</option>
-                    <option value="USD">$</option>
-                </select>
+
+        <div class="form-card">
+
+            <!-- القسم الأول: المعلومات الأساسية -->
+            <div class="form-section">
+                <div class="section-label">المعلومات الأساسية</div>
+
+                <div class="form-group">
+                    <label>اسم العطر <span class="req">*</span></label>
+                    <input type="text" id="name" placeholder="مثال: Rose Noire، Oud Al Layl..." oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label>السعر والعملة <span class="req">*</span></label>
+                    <div class="price-row">
+                        <input type="number" id="price" placeholder="0" oninput="updatePreview()">
+                        <select id="currency" onchange="updatePreview()">
+                            <option value="ل.س">ل.س</option>
+                            <option value="$">$</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>القسم <span class="req">*</span></label>
+                    <select id="category" onchange="updatePreview()">
+                        <option value="men">♂ عطورات رجالية</option>
+                        <option value="women">♀ عطورات نسائية</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- القسم الثاني: الوصف -->
+            <div class="form-section">
+                <div class="section-label">الوصف</div>
+                <div class="form-group">
+                    <label>وصف العطر</label>
+                    <textarea id="description" placeholder="اكتب وصفاً مختصراً عن العطر، رائحته، مناسبته..." oninput="updatePreview()"></textarea>
+                </div>
+            </div>
+
+            <!-- القسم الثالث: الصورة -->
+            <div class="form-section">
+                <div class="section-label">صورة المنتج</div>
+
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(this)">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <div class="upload-text">
+                        <strong>اختر صورة أو اسحبها هنا</strong>
+                        PNG, JPG, WEBP مقبول
+                    </div>
+                    <div class="upload-hint">الحجم الموصى به: 800×800 بكسل</div>
+                </div>
+
+                <div class="img-preview-wrap" id="imgPreviewWrap">
+                    <img id="imgPreview" src="" alt="معاينة">
+                    <div class="remove-img" onclick="removeImage()">✕</div>
+                </div>
+            </div>
+
+            <!-- زر الحفظ -->
+            <div class="form-footer">
+                <button type="button" id="submitBtn" onclick="uploadProduct()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    نشر العطر في المتجر
+                </button>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PREVIEW SIDE -->
+    <div class="preview-side">
+
+        <!-- إحصائيات -->
+        <div class="stats-row" style="margin-bottom:16px;margin-top:0">
+            <div class="stat-card">
+                <div class="stat-num" id="productCount">—</div>
+                <div class="stat-label">منتج في المتجر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" style="font-size:20px">🟢</div>
+                <div class="stat-label">المتجر نشط</div>
             </div>
         </div>
-        <div class="form-group">
-            <label>القسم</label>
-            <select id="category">
-                <option value="men">عطورات رجالية</option>
-                <option value="women">عطورات نسائية</option>
-            </select>
+
+        <div class="preview-title">معاينة الكرت</div>
+
+        <div class="product-preview">
+            <div class="preview-img-wrap">
+                <div class="preview-placeholder" id="previewPlaceholder">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>صورة المنتج</span>
+                </div>
+                <img id="previewCardImg" src="" alt="" style="display:none; max-width:80%; max-height:80%; object-fit:contain; filter:drop-shadow(0 10px 30px rgba(0,0,0,0.6))">
+                <div class="preview-badge" id="previewBadge">رجالي</div>
+            </div>
+            <div class="preview-body">
+                <div class="preview-name placeholder" id="previewName">اسم العطر</div>
+                <div class="preview-price" id="previewPrice">— ل.س</div>
+                <div class="preview-desc" id="previewDesc"></div>
+                <button class="preview-btn">🛒 أضف للسلة</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>وصف العطر</label>
-            <textarea id="description" rows="3"></textarea>
+
+    </div>
+</div>
+
+<!-- ===== SUCCESS OVERLAY ===== -->
+<div class="success-overlay" id="successOverlay">
+    <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h3>تم النشر بنجاح! 🎉</h3>
+        <p>تم إضافة العطر وحفظه في قاعدة البيانات وهو الآن ظاهر للزبائن في المتجر</p>
+        <div class="success-actions">
+            <button class="btn-add-more" onclick="resetForm()">+ إضافة عطر آخر</button>
+            <button class="btn-view" onclick="window.open('index.html','_blank')">عرض المتجر</button>
         </div>
-        <div class="form-group">
-            <label>صورة المنتج</label>
-            <input type="file" id="imageInput" accept="image/*" required>
-        </div>
-        <button type="button" id="submitBtn" onclick="uploadProduct()">حفظ المنتج ونشره</button>
-    </form>
+    </div>
 </div>
 
 <script>
+    // ===== معاينة حية =====
+    function updatePreview() {
+        const name  = document.getElementById('name').value;
+        const price = document.getElementById('price').value;
+        const cur   = document.getElementById('currency').value;
+        const cat   = document.getElementById('category').value;
+        const desc  = document.getElementById('description').value;
+
+        const nameEl = document.getElementById('previewName');
+        nameEl.textContent = name || 'اسم العطر';
+        nameEl.className = 'preview-name' + (name ? '' : ' placeholder');
+
+        document.getElementById('previewPrice').textContent = price ? `${Number(price).toLocaleString()} ${cur}` : `— ${cur}`;
+        document.getElementById('previewBadge').textContent = cat === 'men' ? '♂ رجالي' : '♀ نسائي';
+        document.getElementById('previewDesc').textContent = desc;
+    }
+
+    // ===== اختيار الصورة =====
+    function handleImageSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const url = e.target.result;
+            document.getElementById('imgPreview').src = url;
+            document.getElementById('imgPreviewWrap').style.display = 'block';
+            document.getElementById('uploadArea').style.display = 'none';
+            // preview card
+            document.getElementById('previewCardImg').src = url;
+            document.getElementById('previewCardImg').style.display = 'block';
+            document.getElementById('previewPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeImage() {
+        document.getElementById('imageInput').value = '';
+        document.getElementById('imgPreviewWrap').style.display = 'none';
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('previewCardImg').style.display = 'none';
+        document.getElementById('previewPlaceholder').style.display = 'flex';
+    }
+
+    // drag & drop
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+        e.preventDefault(); uploadArea.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            document.getElementById('imageInput').files = dt.files;
+            handleImageSelect(document.getElementById('imageInput'));
+        }
+    });
+
+    // ===== رفع المنتج =====
     async function uploadProduct() {
-        const btn = document.getElementById("submitBtn");
-        const file = document.getElementById("imageInput").files[0];
-        if (!file) return alert("يرجى اختيار صورة");
+        const btn  = document.getElementById('submitBtn');
+        const file = document.getElementById('imageInput').files[0];
+        const name = document.getElementById('name').value.trim();
+        const price = document.getElementById('price').value;
+
+        if (!name)  { highlight('name');  return; }
+        if (!price) { highlight('price'); return; }
+        if (!file)  { document.getElementById('uploadArea').style.border = '2px dashed #e05555'; setTimeout(()=>document.getElementById('uploadArea').style.border='', 1500); return; }
 
         btn.disabled = true;
-        btn.innerText = "جاري الرفع...";
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> جاري الرفع...';
+
+        const progressBar  = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        progressBar.style.display = 'block';
+
+        // simulate progress
+        let prog = 0;
+        const iv = setInterval(() => { prog = Math.min(prog + 8, 85); progressFill.style.width = prog + '%'; }, 200);
 
         const formData = new FormData();
         formData.append("image", file);
 
         try {
-            // 1. رفع الصورة لـ ImgBB
             const response = await fetch("https://api.imgbb.com/1/upload?key=d4153c26566671cd622f560fa7986321", {
-                method: "POST",
-                body: formData
+                method: "POST", body: formData
             });
             const result = await response.json();
+            clearInterval(iv);
 
             if (result.success) {
-                // 2. تحضير البيانات
+                progressFill.style.width = '100%';
+
                 const productData = {
-                    name: document.getElementById("name").value,
-                    price: document.getElementById("price").value,
-                    currency: document.getElementById("currency").value,
-                    category: document.getElementById("category").value,
+                    name:        document.getElementById("name").value,
+                    price:       document.getElementById("price").value,
+                    currency:    document.getElementById("currency").value,
+                    category:    document.getElementById("category").value,
                     description: document.getElementById("description").value,
-                    imageUrl: result.data.url
+                    imageUrl:    result.data.url
                 };
 
-                // 3. حفظ في Firebase
                 await window.saveToDatabase(productData);
-                alert("تم إضافة العطر بنجاح!");
-                document.getElementById("productForm").reset();
+
+                // تحديث العداد
+                const countEl = document.getElementById('productCount');
+                countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+
+                setTimeout(() => {
+                    document.getElementById('successOverlay').classList.add('show');
+                }, 300);
             }
-        } catch (e) {
-            alert("حدث خطأ أثناء الرفع");
+        } catch(e) {
+            clearInterval(iv);
+            progressBar.style.display = 'none';
+            alert("حدث خطأ أثناء الرفع، حاول مرة أخرى");
         } finally {
             btn.disabled = false;
-            btn.innerText = "حفظ المنتج ونشره";
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> نشر العطر في المتجر';
         }
+    }
+
+    function highlight(id) {
+        const el = document.getElementById(id);
+        el.style.borderColor = '#e05555';
+        el.focus();
+        setTimeout(() => el.style.borderColor = '', 1500);
+    }
+
+    function resetForm() {
+        document.getElementById('productForm') && document.getElementById('productForm').reset();
+        document.getElementById('name').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('category').value = 'men';
+        document.getElementById('currency').value = 'ل.س';
+        removeImage();
+        updatePreview();
+        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('successOverlay').classList.remove('show');
     }
 </script>
 </body>
