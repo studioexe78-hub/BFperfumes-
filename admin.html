@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم - إضافة منتج | BF PERFUMES</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0b0b0b; color: #fff; padding: 20px; }
+        .admin-container { max-width: 600px; margin: auto; background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        h2 { color: #c5a059; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
+        .price-group { display: flex; gap: 10px; }
+        button { width: 100%; padding: 15px; background: #c5a059; border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 20px; }
+        button:disabled { background: #555; cursor: not-allowed; }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAACMgwULMURQbbKmXkM7Nh1ZvkUQ4MR30",
+            authDomain: "bfperfumes.firebaseapp.com",
+            projectId: "bfperfumes",
+            storageBucket: "bfperfumes.firebasestorage.app",
+            messagingSenderId: "765497440872",
+            appId: "1:765497440872:web:07642be56b0ba986d899dd",
+            measurementId: "G-HL3WQ0DJ1Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // الدالة العامة لحفظ البيانات
+        window.saveToDatabase = async (data) => {
+            await addDoc(collection(db, "products"), {
+                ...data,
+                createdAt: new Date().toISOString()
+            });
+        };
+    </script>
+</head>
+<body>
+
+<div class="admin-container">
+    <h2>إضافة عطر جديد</h2>
+    <form id="productForm">
+        <div class="form-group">
+            <label>اسم العطر</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label>السعر والعملة</label>
+            <div class="price-group">
+                <input type="number" id="price" placeholder="السعر" required>
+                <select id="currency" style="width: 120px;">
+                    <option value="SYP">ل.س</option>
+                    <option value="USD">$</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>القسم</label>
+            <select id="category">
+                <option value="men">عطورات رجالية</option>
+                <option value="women">عطورات نسائية</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>وصف العطر</label>
+            <textarea id="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label>صورة المنتج</label>
+            <input type="file" id="imageInput" accept="image/*" required>
+        </div>
+        <button type="button" id="submitBtn" onclick="uploadProduct()">حفظ المنتج ونشره</button>
+    </form>
+</div>
+
+<script>
+    async function uploadProduct() {
+        const btn = document.getElementById("submitBtn");
+        const file = document.getElementById("imageInput").files[0];
+        if (!file) return alert("يرجى اختيار صورة");
+
+        btn.disabled = true;
+        btn.innerText = "جاري الرفع...";
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            // 1. رفع الصورة لـ ImgBB
+            const response = await fetch("https://api.imgbb.com/1/upload?key=d4153c26566671cd622f560fa7986321", {
+                method: "POST",
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                // 2. تحضير البيانات
+                const productData = {
+                    name: document.getElementById("name").value,
+                    price: document.getElementById("price").value,
+                    currency: document.getElementById("currency").value,
+                    category: document.getElementById("category").value,
+                    description: document.getElementById("description").value,
+                    imageUrl: result.data.url
+                };
+
+                // 3. حفظ في Firebase
+                await window.saveToDatabase(productData);
+                alert("تم إضافة العطر بنجاح!");
+                document.getElementById("productForm").reset();
+            }
+        } catch (e) {
+            alert("حدث خطأ أثناء الرفع");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "حفظ المنتج ونشره";
+        }
+    }
+</script>
+</body>
+</html>
