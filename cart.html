@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BF PERFUMES | سلة التسوق</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #c5a059;
+            --gold-light: #d4b472;
+            --dark: #0b0b0b;
+            --card: #141414;
+            --card2: #1a1a1a;
+            --border: #2a2a2a;
+            --text-muted: #888;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* خلفية متحركة خفية */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(197,160,89,0.04) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(197,160,89,0.03) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* الهيدر */
+        .header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(11,11,11,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 8px;
+            color: var(--gold); text-decoration: none;
+            font-size: 15px; font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .back-btn:hover { opacity: 0.7; }
+        .back-btn svg { width: 18px; height: 18px; fill: none; stroke: var(--gold); stroke-width: 2; }
+        .header-title {
+            font-size: 20px; font-weight: 700; color: var(--gold);
+            letter-spacing: 1px;
+        }
+        .header-logo img { width: 60px; }
+
+        /* المحتوى الرئيسي */
+        .page-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+            position: relative; z-index: 1;
+        }
+
+        /* ===== قسم المنتجات ===== */
+        .section-title {
+            font-size: 13px; font-weight: 700; letter-spacing: 3px;
+            color: var(--gold); text-transform: uppercase;
+            margin-bottom: 18px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* المنتجات */
+        .cart-items { display: flex; flex-direction: column; gap: 14px; margin-bottom: 30px; }
+
+        .cart-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex; align-items: center; gap: 16px;
+            transition: border-color 0.2s;
+            animation: fadeIn 0.4s ease both;
+        }
+        .cart-item:hover { border-color: rgba(197,160,89,0.3); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .item-img {
+            width: 75px; height: 75px; object-fit: contain;
+            border-radius: 10px; background: #222; flex-shrink: 0;
+        }
+        .item-info { flex: 1; }
+        .item-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .item-price { color: var(--gold); font-size: 15px; font-weight: 500; }
+
+        .item-qty {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .qty-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--card2); border: 1px solid var(--border);
+            color: #fff; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .qty-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+        .qty-num { font-size: 16px; font-weight: 700; min-width: 22px; text-align: center; }
+
+        .remove-btn {
+            background: none; border: none; cursor: pointer;
+            color: #555; padding: 6px; transition: color 0.2s;
+        }
+        .remove-btn:hover { color: #e05555; }
+        .remove-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+        /* السلة فارغة */
+        .empty-cart {
+            text-align: center; padding: 60px 20px;
+            display: none;
+        }
+        .empty-cart svg { width: 60px; height: 60px; stroke: #333; fill: none; stroke-width: 1.5; margin-bottom: 16px; }
+        .empty-cart p { color: var(--text-muted); font-size: 16px; margin-bottom: 20px; }
+        .empty-cart a {
+            display: inline-block; padding: 12px 28px;
+            background: var(--gold); color: #000; border-radius: 30px;
+            font-weight: 700; text-decoration: none; transition: opacity 0.2s;
+        }
+        .empty-cart a:hover { opacity: 0.85; }
+
+        /* ملخص السعر */
+        .price-summary {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .price-row {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; font-size: 15px; color: var(--text-muted);
+        }
+        .price-row.total {
+            border-top: 1px solid var(--border);
+            margin-top: 8px; padding-top: 16px;
+            font-size: 20px; font-weight: 800; color: #fff;
+        }
+        .price-row.total span:last-child { color: var(--gold); }
+
+        /* ===== نموذج الشحن ===== */
+        .shipping-form {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label {
+            font-size: 13px; font-weight: 600;
+            color: var(--text-muted); letter-spacing: 0.5px;
+        }
+        label span { color: #e05555; margin-right: 2px; }
+
+        input, select, textarea {
+            background: #0f0f0f;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-family: 'Tajawal', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(197,160,89,0.1);
+        }
+        input::placeholder { color: #444; }
+        select option { background: #1a1a1a; }
+
+        /* زر الواتساب */
+        .whatsapp-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 30px rgba(37,211,102,0.2);
+            letter-spacing: 0.5px;
+        }
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(37,211,102,0.3);
+        }
+        .whatsapp-btn:active { transform: scale(0.98); }
+        .whatsapp-btn svg { width: 26px; height: 26px; fill: #fff; flex-shrink: 0; }
+
+        .order-note {
+            text-align: center; margin-top: 12px;
+            font-size: 12px; color: #555;
+        }
+
+        /* Validation */
+        input:invalid:not(:placeholder-shown),
+        select.invalid { border-color: #e05555; }
+        .field-error { font-size: 12px; color: #e05555; display: none; }
+        .field-error.show { display: block; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+            .cart-item { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="back-btn">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        رجوع
+    </a>
+    <span class="header-title">سلة التسوق</span>
+    <img src="https://i.ibb.co/j91zgNRK/IMG-183.png" alt="BF PERFUMES" style="width:55px">
+</header>
+
+<div class="page-wrapper">
+
+    <!-- قسم السلة فارغة -->
+    <div class="empty-cart" id="emptyCart">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <p>سلتك فارغة حالياً</p>
+        <a href="index.html">تصفح العطور</a>
+    </div>
+
+    <!-- محتوى السلة -->
+    <div id="cartContent">
+
+        <!-- المنتجات -->
+        <div class="section-title">المنتجات المختارة</div>
+        <div class="cart-items" id="cartItems"></div>
+
+        <!-- ملخص السعر -->
+        <div class="price-summary" id="priceSummary">
+            <div class="price-row">
+                <span>عدد المنتجات</span>
+                <span id="itemCount">0 منتج</span>
+            </div>
+            <div class="price-row total">
+                <span>المجموع الكلي</span>
+                <span id="totalPrice">0</span>
+            </div>
+        </div>
+
+        <!-- نموذج الشحن -->
+        <div class="section-title">معلومات الشحن</div>
+        <div class="shipping-form">
+            <div class="form-grid">
+
+                <div class="form-group full">
+                    <label>الاسم الكامل <span>*</span></label>
+                    <input type="text" id="fullName" placeholder="مثال: أحمد محمد الأحمد" required>
+                </div>
+
+                <div class="form-group">
+                    <label>المحافظة <span>*</span></label>
+                    <select id="governorate" required>
+                        <option value="" disabled selected>اختر المحافظة</option>
+                        <option>دمشق</option>
+                        <option>ريف دمشق</option>
+                        <option>حلب</option>
+                        <option>حمص</option>
+                        <option>حماة</option>
+                        <option>اللاذقية</option>
+                        <option>طرطوس</option>
+                        <option>إدلب</option>
+                        <option>دير الزور</option>
+                        <option>الرقة</option>
+                        <option>الحسكة</option>
+                        <option>درعا</option>
+                        <option>السويداء</option>
+                        <option>القنيطرة</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>المنطقة / الحي <span>*</span></label>
+                    <input type="text" id="area" placeholder="مثال: المزة، العزيزية..." required>
+                </div>
+
+                <div class="form-group full">
+                    <label>اسم الشارع <span>*</span></label>
+                    <input type="text" id="street" placeholder="مثال: شارع الجمهورية" required>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم البناية</label>
+                    <input type="text" id="building" placeholder="مثال: بناية رقم 12">
+                </div>
+
+                <div class="form-group">
+                    <label>الرمز البريدي</label>
+                    <input type="text" id="postalCode" placeholder="مثال: 12345">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- زر الواتساب -->
+        <button class="whatsapp-btn" onclick="sendOrder()">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            تأكيد الطلب عبر واتساب
+        </button>
+        <p class="order-note">سيتم إرسال تفاصيل طلبك مباشرة عبر واتساب للتأكيد</p>
+
+    </div><!-- end cartContent -->
+</div>
+
+<script>
+    const WHATSAPP_NUMBER = '963997160904';
+
+    // ===== إدارة السلة =====
+    function getCart() {
+        try { return JSON.parse(localStorage.getItem('bf_cart')) || []; } catch { return []; }
+    }
+    function saveCart(cart) {
+        localStorage.setItem('bf_cart', JSON.stringify(cart));
+    }
+
+    function renderCart() {
+        const cart = getCart();
+        const container = document.getElementById('cartItems');
+        const emptyCart = document.getElementById('emptyCart');
+        const cartContent = document.getElementById('cartContent');
+
+        if (cart.length === 0) {
+            emptyCart.style.display = 'block';
+            cartContent.style.display = 'none';
+            return;
+        }
+
+        emptyCart.style.display = 'none';
+        cartContent.style.display = 'block';
+
+        container.innerHTML = cart.map((item, idx) => `
+            <div class="cart-item" style="animation-delay:${idx * 0.07}s">
+                <img class="item-img" src="${item.imageUrl || ''}" alt="${item.name}" onerror="this.style.background='#222'">
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">${(parseFloat(item.price) * item.qty).toLocaleString()} ${item.currency}</div>
+                </div>
+                <div class="item-qty">
+                    <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+                    <span class="qty-num">${item.qty}</span>
+                    <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+                </div>
+                <button class="remove-btn" onclick="removeItem(${idx})" title="حذف">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </button>
+            </div>
+        `).join('');
+
+        updateSummary(cart);
+    }
+
+    function updateSummary(cart) {
+        const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+        const grouped = {};
+        cart.forEach(i => {
+            const cur = i.currency;
+            if (!grouped[cur]) grouped[cur] = 0;
+            grouped[cur] += parseFloat(i.price) * i.qty;
+        });
+
+        document.getElementById('itemCount').textContent = totalQty + ' منتج';
+
+        // عرض المجاميع لكل عملة
+        const totalEl = document.getElementById('totalPrice');
+        totalEl.innerHTML = Object.entries(grouped)
+            .map(([cur, sum]) => `<span style="display:block">${sum.toLocaleString()} ${cur}</span>`)
+            .join('');
+    }
+
+    function changeQty(idx, delta) {
+        const cart = getCart();
+        cart[idx].qty += delta;
+        if (cart[idx].qty <= 0) cart.splice(idx, 1);
+        saveCart(cart);
+        renderCart();
+    }
+
+    function removeItem(idx) {
+        const cart = getCart();
+        cart.splice(idx, 1);
+        saveCart(cart);
+        renderCart();
+    }
+
+    // ===== إرسال الطلب عبر واتساب =====
+    function sendOrder() {
+        const cart = getCart();
+        if (cart.length === 0) { alert('السلة فارغة!'); return; }
+
+        // التحقق من الحقول
+        const fullName    = document.getElementById('fullName').value.trim();
+        const governorate = document.getElementById('governorate').value;
+        const area        = document.getElementById('area').value.trim();
+        const street      = document.getElementById('street').value.trim();
+        const building    = document.getElementById('building').value.trim();
+        const postalCode  = document.getElementById('postalCode').value.trim();
+
+        if (!fullName || !governorate || !area || !street) {
+            alert('⚠️ يرجى تعبئة جميع الحقول المطلوبة (الاسم، المحافظة، المنطقة، الشارع)');
+            return;
+        }
+
+        // بناء الرسالة
+        let msg = '🛍️ *طلب جديد - BF PERFUMES*\n';
+        msg += '━━━━━━━━━━━━━━━━━━\n\n';
+
+        msg += '📦 *المنتجات المطلوبة:*\n';
+        const grouped = {};
+        cart.forEach(item => {
+            msg += `• ${item.name} × ${item.qty} = ${(parseFloat(item.price) * item.qty).toLocaleString()} ${item.currency}\n`;
+            if (!grouped[item.currency]) grouped[item.currency] = 0;
+            grouped[item.currency] += parseFloat(item.price) * item.qty;
+        });
+
+        msg += '\n💰 *المجموع الكلي:*\n';
+        Object.entries(grouped).forEach(([cur, sum]) => {
+            msg += `${sum.toLocaleString()} ${cur}\n`;
+        });
+
+        msg += '\n━━━━━━━━━━━━━━━━━━\n';
+        msg += '📍 *معلومات الشحن:*\n';
+        msg += `👤 الاسم: ${fullName}\n`;
+        msg += `🗺️ المحافظة: ${governorate}\n`;
+        msg += `📍 المنطقة: ${area}\n`;
+        msg += `🛣️ الشارع: ${street}\n`;
+        if (building)   msg += `🏢 البناية: ${building}\n`;
+        if (postalCode) msg += `📮 الرمز البريدي: ${postalCode}\n`;
+        msg += '\n━━━━━━━━━━━━━━━━━━\n';
+        msg += '⏳ بانتظار تأكيدكم، شكراً! 🌹';
+
+        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    }
+
+    // تشغيل عند التحميل
+    renderCart();
+</script>
+</body>
+</html>
