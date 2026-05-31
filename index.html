@@ -6,60 +6,76 @@
     <title>BF PERFUMES | الفخامة</title>
     
     <style>
-        /* إعدادات أساسية */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #0b0b0b; color: #fff; overflow-x: hidden; }
 
-        /* زر القائمة (الهامبرغر) */
-        .menu-btn {
-            position: fixed; top: 25px; left: 25px; cursor: pointer;
-            z-index: 1001; display: flex; flex-direction: column; gap: 6px;
-        }
+        /* القائمة واللوجو (كما طلبتهما سابقاً) */
+        .menu-btn { position: fixed; top: 25px; left: 25px; cursor: pointer; z-index: 1001; display: flex; flex-direction: column; gap: 6px; }
         .menu-btn span { width: 30px; height: 3px; background: #c5a059; transition: 0.3s; }
-
-        /* اللوجو */
         .header-logo { text-align: center; padding: 20px; }
         .header-logo img { width: 120px; height: auto; }
-
-        /* القائمة الجانبية */
-        .sidebar {
-            position: fixed; top: 0; left: -100%; width: 100%; max-width: 300px;
-            height: 100vh; background: #121212; transition: 0.5s ease-in-out;
-            padding-top: 100px; border-left: 1px solid #333; z-index: 1000;
-        }
+        .sidebar { position: fixed; top: 0; left: -100%; width: 100%; max-width: 300px; height: 100vh; background: #121212; transition: 0.5s; padding-top: 100px; border-left: 1px solid #333; z-index: 1000; }
         .sidebar.active { left: 0; }
         .sidebar ul { list-style: none; padding: 0 40px; }
         .sidebar li { margin-bottom: 30px; }
         .sidebar a { text-decoration: none; color: #fff; font-size: 20px; transition: 0.3s; }
         .sidebar a:hover { color: #c5a059; }
 
-        /* المحتوى الرئيسي */
+        /* تنسيق المنتجات */
         .content { padding: 40px 20px; text-align: center; }
-        .hero { 
-            padding: 80px 20px; border: 1px solid #222; 
-            border-radius: 15px; background: #111; 
-        }
-
-        /* تعديلات الموبايل */
-        @media (max-width: 600px) {
-            .header-logo img { width: 100px; }
-            .hero { padding: 40px 20px; }
-        }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; margin-top: 50px; }
+        .product-card { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .product-card h3 { color: #c5a059; margin-bottom: 10px; }
+        .product-card p { font-size: 14px; color: #aaa; margin-bottom: 10px; }
     </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAACMgwULMURQbbKmXkM7Nh1ZvkUQ4MR30",
+            authDomain: "bfperfumes.firebaseapp.com",
+            projectId: "bfperfumes",
+            storageBucket: "bfperfumes.firebasestorage.app",
+            messagingSenderId: "765497440872",
+            appId: "1:765497440872:web:07642be56b0ba986d899dd",
+            measurementId: "G-HL3WQ0DJ1Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadProducts() {
+            const container = document.getElementById("productsGrid");
+            const snapshot = await getDocs(collection(db, "products"));
+            container.innerHTML = ""; 
+            snapshot.forEach((doc) => {
+                const p = doc.data();
+                container.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.imageUrl}" alt="${p.name}">
+                        <h3>${p.name}</h3>
+                        <p>${p.description}</p>
+                        <p style="color:#c5a059; font-weight:bold;">${p.price} ${p.currency}</p>
+                    </div>
+                `;
+            });
+        }
+        window.onload = loadProducts;
+    </script>
 </head>
 <body>
 
-    <!-- زر القائمة -->
-    <div class="menu-btn" onclick="toggleMenu()">
+    <div class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('active')">
         <span></span><span></span><span></span>
     </div>
 
-    <!-- اللوجو -->
     <div class="header-logo">
         <img src="https://i.ibb.co/j91zgNRK/IMG-183.png" alt="BF PERFUMES">
     </div>
 
-    <!-- القائمة الجانبية -->
     <nav class="sidebar" id="sidebar">
         <ul>
             <li><a href="#">جديدنا من العطور</a></li>
@@ -71,18 +87,11 @@
         </ul>
     </nav>
 
-    <!-- المحتوى -->
     <main class="content">
         <section class="hero">
-            <h1>عالم BF PERFUMES</h1>
-            <p>اكتشف أرقى العطور الحصرية.</p>
+            <h1>أهلاً بكم في عالم BF PERFUMES</h1>
         </section>
+        <div class="products-grid" id="productsGrid"></div>
     </main>
-
-    <script>
-        function toggleMenu() {
-            document.getElementById("sidebar").classList.toggle("active");
-        }
-    </script>
 </body>
 </html>
